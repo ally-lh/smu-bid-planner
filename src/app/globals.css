@@ -1,49 +1,138 @@
+/* Layout concept: the SMU course-sequence sheet, reborn as a term board (Year × Term columns)
+   with a requirements ledger beside it. Navy ink, SMU gold for "in plan", semantic greens/violets. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f3f4f8;
+  --surface: #ffffff;
+  --surface-2: #f8f9fc;
+  --ink: #131939;
+  --muted: #5b6183;
+  --faint: #8a8fab;
+  --line: #e1e3ee;
+  --line-strong: #c9cce0;
+  --accent: #9c7020;
+  --accent-ink: #6f4f12;
+  --accent-soft: #f7eed9;
+  --taking: #2f4fc4;
+  --taking-soft: #e3e9fb;
+  --done: #1d7550;
+  --done-soft: #e1f2e9;
+  --exempt: #5f4fa3;
+  --exempt-soft: #ece9f8;
+  --bid: #b5531d;
+  --bid-soft: #fbe9de;
+  --warn: #b23b1e;
+  --warn-soft: #fbe5df;
+  --navy: #151c55;
+  --on-navy: #f4f1e6;
+  --shadow: 0 1px 2px rgb(19 25 57 / 0.06), 0 8px 24px -12px rgb(19 25 57 / 0.18);
+  --scrim: rgb(13 16 36 / 0.36);
+
+  --font-display: var(--font-bricolage), "Avenir Next", system-ui, sans-serif;
+  --font-body: var(--font-instrument), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", Menlo, monospace;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
+    --bg: #0c0f22;
+    --surface: #151a36;
+    --surface-2: #11152d;
+    --ink: #e9ebf7;
+    --muted: #a1a6c8;
+    --faint: #767c9f;
+    --line: #252b4f;
+    --line-strong: #353c66;
+    --accent: #e2b65c;
+    --accent-ink: #f0cd85;
+    --accent-soft: #3a2f17;
+    --taking: #93a8ff;
+    --taking-soft: #1c2550;
+    --done: #5fcf9b;
+    --done-soft: #143327;
+    --exempt: #ab9df0;
+    --exempt-soft: #272248;
+    --bid: #f39a63;
+    --bid-soft: #3b2417;
+    --warn: #ff8c70;
+    --warn-soft: #3d1d16;
+    --navy: #1d2566;
+    --on-navy: #f4f1e6;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 28px -14px rgb(0 0 0 / 0.6);
+    --scrim: rgb(4 5 14 / 0.6);
     color-scheme: dark;
   }
 }
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+a { color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.num { font-variant-numeric: tabular-nums; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Pressables: instant feedback on press (Emil: scale 0.97). */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line-strong); background: var(--surface);
+  border-radius: 8px; padding: 7px 12px; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: transform 140ms var(--ease-out), background-color 150ms ease, border-color 150ms ease;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--navy); border-color: var(--navy); color: var(--on-navy); }
+.btn-ghost { border-color: transparent; background: transparent; }
+.btn-danger { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
+.btn-sm { padding: 4px 9px; font-size: 13px; }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { border-color: var(--faint); }
+  .btn-primary:hover { background: color-mix(in srgb, var(--navy) 88%, white); }
+  .btn-ghost:hover { background: var(--surface-2); }
+}
+
+.field { display: grid; gap: 4px; }
+.field > span { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.input {
+  width: 100%; border: 1px solid var(--line-strong); background: var(--surface);
+  border-radius: 8px; padding: 8px 10px; font-size: 15px;
+  transition: border-color 150ms ease;
+}
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+textarea.input { resize: vertical; min-height: 64px; }
+
+/* Status vocabulary — shape + colour so state reads at a glance. */
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.status-none { color: var(--faint); background: var(--surface-2); }
+.status-none::before { background: transparent; border: 1.5px solid currentColor; width: 5px; height: 5px; }
+.status-planned { color: var(--accent-ink); background: var(--accent-soft); }
+.status-bidding { color: var(--bid); background: var(--bid-soft); }
+.status-taking { color: var(--taking); background: var(--taking-soft); }
+.status-done { color: var(--done); background: var(--done-soft); }
+.status-exempt { color: var(--exempt); background: var(--exempt-soft); }
+
+.chip { display: inline-flex; align-items: center; font-size: 11.5px; padding: 1px 7px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted); background: var(--surface); white-space: nowrap; font-family: var(--font-mono); }
+.chip-pasg { border-color: color-mix(in srgb, var(--navy) 35%, transparent); color: var(--ink); }
+.chip-warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); background: var(--warn-soft); font-family: var(--font-body); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
+.btn:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }

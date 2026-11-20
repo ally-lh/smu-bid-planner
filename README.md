@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SMU Bid Planner
 
-## Getting Started
+Plan SMU SCIS modules term by term (Y1 T1 to Y5 T1/T2), see which requirement each module clears, tag the graduation requirements a module double-counts for, and mark exemptions.
 
-First, run the development server:
+Requirements come from the SCIS *General Course Progression* sheet (IS, SMT, CS, SE and C&L programmes, by intake year).
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm test           # unit tests for the planning logic
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Live site
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Deployed to GitHub Pages at **https://ally-lh.github.io/smu-bid-planner/** by `.github/workflows/pages.yml` on every push to `main` (static export; `GITHUB_PAGES_BASE` sets the base path). In the repo settings, Pages → Source must be **GitHub Actions**.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Where plans are kept
 
-## Learn More
+There's no account or database. Each plan is saved in the visitor's browser (localStorage), so it's still there when they come back on the same browser. To move a plan or keep a copy, use **Programme & settings → Your plan's data**:
 
-To learn more about Next.js, take a look at the following resources:
+- **Save / Load plan file**: a `my-plan.json` with everything (modules, notes, exchange shortlist).
+- **Copy AI prompt**: paste it into ChatGPT, Claude or Gemini with an exported progression PDF, DPR or notes attached. The reply is JSON the app loads directly ("Load pasted plan").
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Export PDF** (top bar) prints a course progression report for a course counsellor; choose "Save as PDF" in the print dialog.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Course catalogue, exams and grading
 
-## Deploy on Vercel
+`public/data/courses.json` powers the **Find modules** tab and the "Pick a course" list. It comes from SMU's public course catalogue (ccms.smu.edu.sg):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+python3 scripts/fetch_catalogue.py public/data/courses.json   # courses, course-area tags, grading basis
+python3 scripts/fetch_exams.py public/data/courses.json       # final exam yes/no from the published exam schedule
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Exam info = whether the course's sections had a scheduled Final in the latest term it ran (current term first, then the two before). Assessment breakdowns (projects, quizzes) aren't public; check the course outline in BOSS.
+
+## Updating the curriculum
+
+Download the sheet as `.xlsx`, then:
+
+```bash
+python3 scripts/parse_workbook.py path/to/sheet.xlsx src/data/curriculum.json
+```

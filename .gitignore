@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# playwright
+.playwright-mcp/
+!.env.example
+
+# personal data: kept local, never published
+/private/
+/PLAN.md
